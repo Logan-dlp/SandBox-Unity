@@ -1,0 +1,34 @@
+{
+    "name": "IA_Player",
+    "maps": [
+        {
+            "name": "Games",
+            "id": "924c7a49-b7ab-4061-a06a-fe512be0d1c3",
+            "actions": [
+                {
+                    "name": "CameraMovement",
+                    "type": "Value",
+                    "id": "aa5098eb-b39f-4115-8600-c0ab65926958",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "f8748f3c-8c87-4af4-b346-67a7f83220f3",
+                    "path": "<Mouse>/delta",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "CameraMovement",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        }
+    ],
+    "controlSchemes": []
+}
