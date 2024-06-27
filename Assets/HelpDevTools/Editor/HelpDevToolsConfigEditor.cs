@@ -1,16 +1,70 @@
-using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Networking;
+using Unity.EditorCoroutines.Editor;
 
 public class HelpDevToolsConfigEditor : EditorWindow
 {
     private static HelpDevToolsConfig _config;
+    private static string _note = "";
     
     public static void CallDev()
     {
+        if (_config == null)
+        {
+            Debug.LogWarning($"{nameof(HelpDevToolsConfig)} asset was not found, it must have been created.");
+            ShowConfig();
+        }
+
+        if (_config.WebhooksAPI == null || _config.WebhooksAPI.Length == 0)
+        {
+            Debug.LogError("Please insert the Webhooks of your Discord server.");
+            ShowConfig();
+            return;
+        }
         
+        IEnumerator RequestWebhooksAPI()
+        {
+            string nameForMessage;
+            if (_config.YourName == null || _config.YourName.Length == 0)
+            {
+                nameForMessage = "a member of the team";
+            }
+            else
+            {
+                nameForMessage = _config.YourName;
+            }
+
+            if (_note.Length > 0)
+            {
+                _note = $"\n> **Note :** {_note}.";
+            }
+            
+            WWWForm requestContent = new();
+            requestContent.AddField("content", $"@here **__{nameForMessage}__** needs a developer.{_note}\n \n*If you take care of it please put the reaction :white_check_mark: and delete the message after the request is made.*");
+            using (UnityWebRequest request = UnityWebRequest.Post(_config.WebhooksAPI, requestContent))
+            {
+                yield return request.SendWebRequest();
+                if (request.result != UnityWebRequest.Result.Success)
+                {
+                    Debug.LogError($"Webrequest Error : {request.error}.");
+                }
+                else
+                {
+                    if (_config.Logging)
+                    {
+                        Debug.Log("Your message has been sent.");
+                    }
+                }
+            }
+
+            _note = "";
+        }
+
+        EditorCoroutineUtility.StartCoroutineOwnerless(RequestWebhooksAPI());
     }
     
     public static void ShowConfig()
@@ -20,15 +74,29 @@ public class HelpDevToolsConfigEditor : EditorWindow
         EditorGUIUtility.PingObject(AssetDatabase.LoadAssetAtPath<HelpDevToolsConfig>(path).GetInstanceID());
     }
 
-    [MenuItem("Window/HelpDevTools Windows")]
+    [MenuItem("Window/Tools/Help Developer", false, int.MaxValue)]
     public static void ShowWindows()
     {
-        GetWindow<HelpDevToolsConfigEditor>("Help Developper");
+        EditorWindow win = GetWindow<HelpDevToolsConfigEditor>("Help Developer");
+
+        Vector2 size = new(400, 100);
+        
+        win.maxSize = size;
+        win.minSize = size;
     }
 
     private void OnGUI()
     {
-        if (GUILayout.Button("Call Developper"))
+        EditorGUILayout.Space(10);
+        if (GUILayout.Button("Show Config"))
+        {
+            ShowConfig();
+        }
+        
+        EditorGUILayout.Separator();
+        _note = EditorGUILayout.TextField("Note :", _note);
+        
+        if (GUILayout.Button("Call Developer"))
         {
             CallDev();
         }

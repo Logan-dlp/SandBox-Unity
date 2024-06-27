@@ -12,3 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fbcea509cbfdd474aa4bdf32bbb37d58, type: 3}
   m_Name: HelpDevToolsConfig
   m_EditorClassIdentifier: 
+  YourName: 
+  WebhooksAPI: 
+  Logging: 1
